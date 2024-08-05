@@ -127,14 +127,6 @@ print(test_indices)
 # loss = F.mse_loss(result1, origin1)
 # print("mseloss:", loss)
 #
-# time1 = time.time()
-# for i in range(24):
-#     data = test_dataset[i]
-#     y = data.y.view(-1, 54 * y_length)
-#     out = model(data)
-# time2 = time.time()
-# print(time2 - time1)
-#
 # for i in range(test_length):
 #     j = test_indices[i]
 #     loss = 0
