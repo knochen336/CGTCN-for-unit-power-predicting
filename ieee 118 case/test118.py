@@ -257,8 +257,6 @@ for testday in range(30):
              100, 100, 255, 260, 100, 491, 492, 805.2, 100, 100, 100, 100, 100, 100, 577, 100, 104, 707, 100, 100, 100,
              100,
              352, 140, 100, 100, 100, 100, 136, 100, 100, 100]
-    p_min = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     f12 = np.tile(f30, 12).T.reshape(-1)
     max_change = 20
     p_max_12 = np.tile(p_max, 12)
@@ -310,12 +308,10 @@ for testday in range(30):
         b_1 = - load12 + f12
         b_2 = f12 + load12
         constraints = [
-            # 所有元素都大于等于0
             LinearConstraints(
-                A=-np.eye(54 * 12),  # 注意这里是负的单位矩阵，因为我们要表示的是 x >= 0，而不是 x <= 0
-                b=-p_min_12,  # 同样，这里也是负的下限
+                A=-np.eye(54 * 12), 
+                b=-p_min_12,  
             ),
-            # 所有元素都小于等于各自的上限
             LinearConstraints(
                 A=np.eye(54 * 12),
                 b=p_max_12,
@@ -356,27 +352,4 @@ for testday in range(30):
 
     print("负载差值比例{:.10f}".format(-(origin.sum(dim=1) - final.sum(dim=1)).sum() / origin.sum()))
 
-    tunit_price = pd.read_csv('./tunit_price.csv', index_col=None, encoding="gb2312")
-    tunit_price = tunit_price[['NETCOST', 'INCCOST']]
-    data = pd.read_excel(f'./test_result/data{testday}.xlsx', index_col=None).values
 
-    total_cost0 = 0
-    for i in range(54):  # 遍历每个机组
-        a = tunit_price.iat[i, 0]
-        b = tunit_price.iat[i, 1]
-        for j in range(288):  # 遍历每个时刻
-            x = final[j, i]
-            cost =  (a * x ** 2) + b * x #0.5
-            total_cost0 += cost
-    print("预测成本是：", total_cost0)
-
-    total_cost1 = 0
-    for i in range(54):  # 遍历每个机组
-        a = tunit_price.iat[i, 0]
-        b = tunit_price.iat[i, 1]
-        for j in range(288):  # 遍历每个时刻
-            x = origin[j, i]
-            cost = (a * x ** 2) + b * x
-            total_cost1 += cost
-    print("总成本是：", total_cost1)
-    print("成本差值比例{:.10f}".format(- (total_cost1 - total_cost0) / total_cost1))
